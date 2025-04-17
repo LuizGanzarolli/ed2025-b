@@ -1,37 +1,91 @@
-import java.util.Random;
 import java.util.Scanner;
 
 public class JogaJogoDaVelha {
     public static void main(String[] args) {
-        System.out.println("Bem-vindo ao teste do Jogo da Velha!");
+
+        
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Digite 1 para jogar ou 0 para sair: ");
-        int opcao = scanner.nextInt();
-        Random random = new Random();
-        while (opcao!=0) {
-            System.out.println("Digite um número inteiro para a dimensão do tabuleiro: ");
-            int dimensao = scanner.nextInt();
-            JogoDaVelha jogo = new JogoDaVelha(dimensao);
-            int i, j;
-            while (jogo.venceuUsando().equals("continuar")) {
-                i = random.nextInt(dimensao);
-                j = random.nextInt(dimensao);
-                try {
-                    jogo.poePeca(i, j);
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
-                    continue;
+
+        int resp = 1;
+
+        System.out.println("Bem-vindo ao Jogo da Velha!");
+
+        while (resp == 1) {
+
+            int dimensao = 0;
+
+            
+            while (dimensao < 3 || dimensao % 2 == 0) {
+                System.out.println("Digite o número da dimensão do tabuleiro (mínimo 3x3): ");
+                dimensao = scanner.nextInt();
+
+                if (dimensao < 3) {
+                    System.out.println("O tamanho informado é muito pequeno, por favor, informe um valor maior.");
+                } else if (dimensao % 2 == 0) {
+                    System.out.println("Por favor, informe um valor ímpar.");
                 }
-//                System.out.println(jogo.toString());
             }
-            if (! jogo.venceuUsando().equals("empate")) {
-                System.out.println("Jogador ganhou utilizando: " + jogo.venceuUsando() );
-            } else  {
-                System.out.println("Empate!");
+
+            JogoDaVelha jogo = new JogoDaVelha(dimensao); 
+            jogo.limparTabuleiro();
+
+            
+            int vencedor = 2;  
+            while (vencedor == 2) {
+                
+                System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+                System.out.println(jogo.toString());
+                System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
+                
+                int linha, coluna;
+                do {
+                    System.out.println("Jogador " + (jogo.jogadorAtual == JogoDaVelha.JOGADOR_X ? "X" : "O") + ", informe a linha e a coluna da sua jogada:");
+                    System.out.print("Linha (0 a " + (dimensao - 1) + "): ");
+                    linha = scanner.nextInt();
+                    System.out.print("Coluna (0 a " + (dimensao - 1) + "): ");
+                    coluna = scanner.nextInt();
+                } while (linha < 0 || linha >= dimensao || coluna < 0 || coluna >= dimensao || jogo.tabuleiro[linha][coluna] != JogoDaVelha.CELULA_VAZIA);
+
+                
+                jogo.tabuleiro[linha][coluna] = jogo.jogadorAtual;
+
+                
+                vencedor = jogo.verificarVencedor();
+
+                if (vencedor == JogoDaVelha.JOGADOR_X) {
+                    System.out.println("Jogador X venceu o jogo!");
+                } else if (vencedor == JogoDaVelha.JOGADOR_O) {
+                    System.out.println("Jogador O venceu o jogo!");
+                } else if (vencedor == 0) {
+                    System.out.println("O jogo deu empate!");
+                }
+
+               
+                jogo.jogadorAtual *= -1;
             }
+
+           
+            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
             System.out.println(jogo.toString());
-            System.out.println("Deseja jogar novamente? (1-sim, 0-nao): ");
-            opcao = scanner.nextInt();
+            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
+           
+            System.out.println("Você deseja jogar novamente?");
+            System.out.println("1 - Sim");
+            System.out.println("2 - Não");
+            resp = scanner.nextInt();
+
+            while (resp != 1 && resp != 2) {
+                System.out.println("Por favor, digite um número válido.");
+                System.out.println("1 - Sim");
+                System.out.println("2 - Não");
+                resp = scanner.nextInt();
+            }
         }
+
+        System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+        System.out.println("Obrigado por jogar!");
+        scanner.close();
     }
 }

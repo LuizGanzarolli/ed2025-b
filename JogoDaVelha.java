@@ -1,66 +1,148 @@
+import java.util.Random;
+
 public class JogoDaVelha {
-    protected static final int X = 1, O = -1;
-    protected static final int VAZIO = 0;
-    protected int tabuleiro[][] = new int[3][3];
-    protected int jogador;
+    protected static final int JOGADOR_X = 1, JOGADOR_O = -1;
+    protected static final int CELULA_VAZIA = 0;
+    protected int[][] tabuleiro;
+    protected int jogadorAtual;
+    protected int tamanhoTabuleiro;
 
-    public JogoDaVelha() {
-        limpaTabuleiro();
+    public JogoDaVelha(int tamanho) {
+        this.tamanhoTabuleiro = tamanho;
+        this.tabuleiro = new int[tamanho][tamanho];
     }
 
-    public void limpaTabuleiro() {
-        for(int i = 0;i<3;i++) {
-            for (int j=0; j<3; j++) {
-                tabuleiro[i][j]=VAZIO;
+    public void limparTabuleiro() {
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            for (int j = 0; j < tamanhoTabuleiro; j++) {
+                tabuleiro[i][j] = CELULA_VAZIA;
             }
         }
-        jogador = X;
+
+        jogadorAtual = JOGADOR_X;
     }
 
-    public void poePeca(int i, int j) {
-        if (i<0||i>2||j<0||j>2){
-            throw new IllegalArgumentException("Posição Inválida");
-        }
-        if (tabuleiro[i][j]!=VAZIO) throw new IllegalArgumentException("Posição Ocupada");
-        tabuleiro[i][j]=jogador;
-        jogador = -jogador;
+    public int[] obterPosicaoAleatoria() {
+        Random random = new Random();
+        int[] posicao = new int[2];
+
+        posicao[0] = random.nextInt(tamanhoTabuleiro);
+        posicao[1] = random.nextInt(tamanhoTabuleiro);
+
+        return posicao;
     }
 
+    public void preencherTabuleiro() {
+        int vencedor = 2;
+        jogadorAtual = JOGADOR_X;
 
-    public String venceuUsando() {
-        String resultado = "continuar";
-        // Implemente este método que deve retornar se o vencedor venceu com
-        // uma linha, coluna ou diagonal. O retorno deve ser "linha", "coluna",
-        // "diagonal" ou "continuar" caso o jogo não tenha terminado.
+        while (vencedor == 2) {
+            int[] posicao = obterPosicaoAleatoria();
+            vencedor = verificarVencedor();
 
-        return resultado;
-    }
-    
-    public String toString() {
-        /** Implementar o método to String que deve retornar
-         * uma string com o tabuleiro do jogo da velha com as peças
-         * nas posições corretas.
-         */
-        String retorno = "";
-        for (int i=0; i<3;i++){
-            for (int j=0; j<3; j++){
-                if(tabuleiro[i][j]==X) {
-                    retorno += ("X");
-                } else if (tabuleiro[i][j]==O) {
-                    retorno += ("O");
+            if (vencedor == 2) {
+                if (tabuleiro[posicao[0]][posicao[1]] == CELULA_VAZIA) {
+                    tabuleiro[posicao[0]][posicao[1]] = jogadorAtual;
+                    String tabuleiroStr = toString();
+                    System.out.println(tabuleiroStr);
+                    System.out.println();
+                    jogadorAtual *= -1;
                 } else {
-                    retorno += (" ");
-                }
-                if (j<2){
-                    retorno += ("|");
+                    posicao = obterPosicaoAleatoria();
                 }
             }
-            //System.out.println();
-            if (i<2){
-                retorno += ("\n-----\n");
+        }
+    }
+
+    public boolean verificarVencedor(int jogador) {
+        // Verifica linhas
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            int somaLinha = 0;
+            for (int j = 0; j < tamanhoTabuleiro; j++) {
+                somaLinha += tabuleiro[i][j];
             }
 
-        }   
-        return retorno;
+            if (somaLinha == jogador * tamanhoTabuleiro) {
+                return true;
+            }
+        }
+
+        // Verifica colunas
+        for (int j = 0; j < tamanhoTabuleiro; j++) {
+            int somaColuna = 0;
+            for (int i = 0; i < tamanhoTabuleiro; i++) {
+                somaColuna += tabuleiro[i][j];
+            }
+
+            if (somaColuna == jogador * tamanhoTabuleiro) {
+                return true;
+            }
+        }
+
+        // Verifica diagonal principal
+        int somaDiagonalPrincipal = 0;
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            somaDiagonalPrincipal += tabuleiro[i][i];
+        }
+
+        if (somaDiagonalPrincipal == jogador * tamanhoTabuleiro) {
+            return true;
+        }
+
+        // Verifica diagonal secundária
+        int somaDiagonalSecundaria = 0;
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            somaDiagonalSecundaria += tabuleiro[i][tamanhoTabuleiro - 1 - i];
+        }
+
+        if (somaDiagonalSecundaria == jogador * tamanhoTabuleiro) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public int verificarVencedor() {
+        if (verificarVencedor(JOGADOR_X)) {
+            return JOGADOR_X;
+        } else if (verificarVencedor(JOGADOR_O)) {
+            return JOGADOR_O;
+        }
+
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            for (int j = 0; j < tamanhoTabuleiro; j++) {
+                if (tabuleiro[i][j] == CELULA_VAZIA) {
+                    return 2;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    public String toString() {
+        StringBuilder tabuleiroStr = new StringBuilder();
+
+        for (int i = 0; i < tamanhoTabuleiro; i++) {
+            for (int j = 0; j < tamanhoTabuleiro; j++) {
+                if (tabuleiro[i][j] == JOGADOR_X) {
+                    tabuleiroStr.append(" X ");
+                } else if (tabuleiro[i][j] == JOGADOR_O) {
+                    tabuleiroStr.append(" O ");
+                } else {
+                    tabuleiroStr.append("   ");
+                }
+
+                if (j < tamanhoTabuleiro - 1) {
+                    tabuleiroStr.append(" | ");
+                }
+            }
+
+            if (i < tamanhoTabuleiro - 1) {
+                tabuleiroStr.append("\n---|---|---\n");
+            }
+        }
+
+        return tabuleiroStr.toString();
     }
 }
